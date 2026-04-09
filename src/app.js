@@ -5,6 +5,7 @@ import productsRouter from "./routes/products.js";
 import authRouter from "./routes/auth.js";
 import cors from "cors";
 import eventsRouter from "./routes/events.js";
+import bookingsRouter from "./routes/bookings.js";
 
 const app = express();
 
@@ -30,6 +31,6 @@ app.get("/health", (req, res) => {
 app.use("/products", productsRouter);
 app.use("/auth", authRouter);
 app.use("/events", eventsRouter);
-// app.use("/bookings", bookingsRouter);
+app.use("/bookings", bookingsRouter);
 
 export default app;

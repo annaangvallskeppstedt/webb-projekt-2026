@@ -13,4 +13,4 @@ const eventSchema = new mongoose.Schema({
   category: String
 });
 
-export default mongoose.model("Event", eventSchema);
+export default mongoose.model("Event", eventSchema); 
