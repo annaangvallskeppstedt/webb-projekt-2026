@@ -30,6 +30,6 @@ app.get("/health", (req, res) => {
 app.use("/products", productsRouter);
 app.use("/auth", authRouter);
 app.use("/events", eventsRouter);
-app.use("/bookings", bookingsRouter);
+// app.use("/bookings", bookingsRouter);
 
 export default app;
