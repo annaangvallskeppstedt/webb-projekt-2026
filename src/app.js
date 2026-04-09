@@ -5,6 +5,7 @@ import productsRouter from "./routes/products.js";
 import authRouter from "./routes/auth.js";
 import cors from "cors";
 import eventsRouter from "./routes/events.js";
+import bookingsRouter from "./routes/bookings.js";
 
 const app = express();
 
