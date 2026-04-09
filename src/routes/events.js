@@ -1,5 +1,6 @@
 import express from "express";
 import Event from "../models/Event.js";
+import { isAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST skapa event
-router.post("/", async (req, res) => {
+router.post("/", isAdmin, async (req, res) => {
   try {
     const event = new Event(req.body);
     await event.save();
@@ -41,7 +42,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT uppdatera event
-router.put("/:id", async (req, res) => {
+router.put("/:id", isAdmin, async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(
       req.params.id,
@@ -60,7 +61,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE event
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", isAdmin, async (req, res) => {
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
 
