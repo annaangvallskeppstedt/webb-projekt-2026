@@ -1,9 +1,12 @@
+
+
 import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import productsRouter from "./routes/products.js";
 import authRouter from "./routes/auth.js";
 import cors from "cors";
+import eventsRouter from "./routes/events.js";
 
 const app = express();
 
@@ -17,7 +20,7 @@ async function connectDB() {
 
 // Middleware
 app.use(async (req, res, next) => {
-  try {
+  try { 
     await connectDB();
     next();
   } catch (err) {
@@ -39,6 +42,7 @@ app.get("/health", (req, res) => {
 
 app.use("/products", productsRouter);
 app.use("/auth", authRouter);
+app.use("/events", eventsRouter);
 //TODO: Add more routes as needed
 
 export default app;
