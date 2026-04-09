@@ -1,35 +1,42 @@
 import express from "express";
 import Booking from "../models/bookingModel.js";
-import Event from "../models/eventModel.js";
+import Event from "../models/Event.js";
 
 const router = express.Router();
 
-// CREATE booking
+//create en booking
 router.post("/", async (req, res) => {
   try {
-    const { name, email, event } = req.body;
+    const { name, email, event, quantity = 1 } = req.body;
 
-    // 1. Hitta event
+    //hitta event
     const foundEvent = await Event.findById(event);
     if (!foundEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    // 2. Kolla om fullbokat
-    const bookingsCount = await Booking.countDocuments({ event: event });
-    if (bookingsCount >= foundEvent.maxCapacity) {
-      return res.status(400).json({ message: "Event is fully booked" });
+    // räkna bokade platser
+    const bookings = await Booking.find({ event });
+    const totalBooked = bookings.reduce((sum, b) => sum + b.quantity, 0);
+
+    //kolla kapacitet
+    if (totalBooked + quantity > foundEvent.totalSpots) {
+      return res.status(400).json({ message: "Not enough spots available" });
     }
 
-    // 3. Kolla dubbelbokning
+    //kolla dubbelbokning
     const existingBooking = await Booking.findOne({ email, event });
     if (existingBooking) {
       return res.status(400).json({ message: "You already booked this event" });
     }
 
-    // 4. Skapa booking
-    const booking = new Booking({ name, email, event });
+    //skapa booking
+    const booking = new Booking({ name, email, event, quantity });
     const savedBooking = await booking.save();
+
+    //uppdatera bookedSpots
+    foundEvent.bookedSpots = (foundEvent.bookedSpots || 0) + quantity;
+    await foundEvent.save();
 
     res.status(201).json(savedBooking);
 
@@ -38,28 +45,53 @@ router.post("/", async (req, res) => {
   }
 });
 
+
+// GET bookings för ett event
 router.get("/event/:eventId", async (req, res) => {
   try {
-    const bookings = await Booking.find({ event: req.params.eventId });
+    const bookings = await Booking.find({ event: req.params.eventId })
+      .populate("event");
+
     res.json(bookings);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// DELETE booking
+
+// DELETE booking + uppdatera event
 router.delete("/:id", async (req, res) => {
   try {
-    const deleted = await Booking.findByIdAndDelete(req.params.id);
+    const booking = await Booking.findById(req.params.id);
 
-    if (!deleted) {
+    if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    res.json({ message: "Booking deleted" });
+    // hitta event
+    const foundEvent = await Event.findById(booking.event);
+
+    if (foundEvent) {
+      foundEvent.bookedSpots =
+        (foundEvent.bookedSpots || 0) - booking.quantity;
+
+      //säkerställ att det inte blir negativt
+      if (foundEvent.bookedSpots < 0) {
+        foundEvent.bookedSpots = 0;
+      }
+
+      await foundEvent.save();
+    }
+
+    //ta bort booking
+    await Booking.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Booking deleted and spots updated" });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 export default router;
