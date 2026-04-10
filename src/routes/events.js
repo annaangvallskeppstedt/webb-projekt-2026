@@ -1,6 +1,6 @@
 import express from "express";
 import Event from "../models/Event.js";
-import { isAdmin } from "../middleware/auth.js";
+/*  */ import { isAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -10,7 +10,8 @@ router.get("/", async (req, res) => {
     const events = await Event.find().sort({ date: 1 });
     res.json(events);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching events" });
+    console.error("EVENT ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -44,11 +45,9 @@ router.post("/", isAdmin, async (req, res) => {
 // PUT uppdatera event
 router.put("/:id", isAdmin, async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
@@ -73,6 +72,8 @@ router.delete("/:id", isAdmin, async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: "Invalid ID" });
   }
+
+  console.log("events router loaded");
 });
 
 export default router;
