@@ -1,5 +1,6 @@
 import express from "express";
 import Event from "../models/Event.js";
+import { connectToDatabase } from "../config/database.js";
 /*  */ import { isAdmin } from "../middleware/auth.js";
 
 const allowedFields = [
@@ -29,10 +30,12 @@ const router = express.Router();
 // GET alla events
 router.get("/", async (req, res) => {
   try {
+    await connectToDatabase(); 
+
     const events = await Event.find().sort({ date: 1 });
     res.json(events);
   } catch (err) {
-    console.error("EVENT ERROR:", err);
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
