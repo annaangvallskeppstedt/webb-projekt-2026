@@ -12,6 +12,11 @@ const eventSchema = new mongoose.Schema({
     default: 0
   },
   category: String
+
+   image: {
+    type: String, // URL or file path
+    required: false
+  }
 });
 
 export default mongoose.model("Event", eventSchema); 
