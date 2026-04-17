@@ -1,3 +1,2 @@
-import app from "../src/app.v2.js";
-
+import app from "../app.v2.js";
 export default app;

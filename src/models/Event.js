@@ -11,7 +11,7 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  category: String
+  category: String,
 
    image: {
     type: String, // URL or file path
