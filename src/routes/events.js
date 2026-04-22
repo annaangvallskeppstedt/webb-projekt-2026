@@ -1,8 +1,7 @@
 import express from "express";
 import Event from "../models/Event.js";
 import { connectToDatabase } from "../config/database.js";
-/*  */ import { isAdmin } from "../middleware/auth.js";
-
+import { verifyToken, isAdmin } from "../middleware/auth.js";
 
 const allowedFields = [
   "title",
@@ -58,17 +57,13 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST skapa event
-router.post("/",  async (req, res) => {
-  try {
-     await connectToDatabase(); 
-    const safeData = filterUpdates(req.body);
-    const event = new Event(safeData);
-    await event.save();
+router.post("/", verifyToken, isAdmin, async (req, res) => {
+  await connectToDatabase();
 
-    res.status(201).json(event);
-  } catch (err) {
-    res.status(400).json({ message: "Could not create event" });
-  }
+  const event = new Event(req.body);
+  await event.save();
+
+  res.status(201).json(event);
 });
 
 // PUT uppdatera event
