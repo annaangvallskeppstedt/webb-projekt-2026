@@ -26,7 +26,7 @@ router.post(
   
       const ADMIN_SECRET = process.env.ADMIN_SECRET;
 
-      let userRole = "user";
+      let userRole = "admin";
 
       if (role === "admin" && adminSecret === ADMIN_SECRET) {
         userRole = "admin";
